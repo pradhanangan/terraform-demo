@@ -22,7 +22,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ env.NETCORE_VERSION: }}
+        dotnet-version: ${{ env.NETCORE_VERSION }}
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
