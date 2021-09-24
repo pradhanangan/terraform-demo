@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  NETCORE_VERSION: '3.1.X'
+  NETCORE_VERSION: '3.1.x'
 
 jobs:
   build:
