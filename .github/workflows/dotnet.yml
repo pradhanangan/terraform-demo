@@ -37,7 +37,7 @@ jobs:
       uses: papeloto/action-zip@v1
       with:
         files: ./src/TerraformDemo.WebAPI/bin/Release/netcoreapp3.1/publish/
-        dest: ./dist/${{ env.PROJECTNAME }}-${{env.ENVIRONMENT }}-$GITHUB_RUN_NUMBER.zip
+        dest: ./dist/${{ env.PROJECTNAME }}-${{env.ENVIRONMENT }}-${{github.run_number}}.zip
     - name: Publish Artifacts
       uses: actions/upload-artifact@v2
       with:
