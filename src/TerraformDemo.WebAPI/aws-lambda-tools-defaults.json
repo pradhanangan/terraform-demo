@@ -13,6 +13,6 @@
     "s3-prefix"     : "TerraformDemo.WebAPI/",
     "template"      : "serverless.template",
     "template-parameters" : "",
-    "s3-bucket"           : "tmt-terraform-demo-s3",
+    "s3-bucket"           : "tmt-terraform-demo-bucket",
     "stack-name"          : "tmt-terraform-demo-cfn-stack"
 }

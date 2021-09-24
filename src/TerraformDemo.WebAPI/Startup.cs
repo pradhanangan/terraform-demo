@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+//using Microsoft.OpenApi.Models;
 
 namespace TerraformDemo.WebAPI
 {
@@ -28,6 +31,11 @@ namespace TerraformDemo.WebAPI
         {
             services.AddControllers();
 
+            // Start Swashbuckle package
+            //// Register the Swagger generator, defining 1 or more Swagger documents
+            //services.AddSwaggerGen();
+            // End Swashbuckle package
+            
             services.AddOpenApiDocument(configure =>
             {
                 configure.Title = "terraform-demo";
@@ -44,8 +52,30 @@ namespace TerraformDemo.WebAPI
 
             app.UseHttpsRedirection();
 
+            // Start Swashbuckle package
+            //// Enable middleware to serve generated Swagger as a JSON endpoint.
+            //app.UseSwagger();
+            //app.UseSwaggerUI(c =>
+            //{
+            //    c.SwaggerEndpoint("v1/swagger.json", "My API V1");
+            //});
+            // End Swashbuckle package
+
+            // NSwag - Start
             app.UseOpenApi();
             app.UseSwaggerUi3();
+            //app.UseSwaggerUi3(config => config.TransformToExternalPath = (internalUiRoute, request) =>
+            //{
+            //    if (internalUiRoute.StartsWith("/") == true && internalUiRoute.StartsWith(request.PathBase) == false)
+            //    {
+            //        return request.PathBase + internalUiRoute;
+            //    }
+            //    else
+            //    {
+            //        return internalUiRoute;
+            //    }
+            //});
+            // NSwag - End
 
             app.UseRouting();
 
