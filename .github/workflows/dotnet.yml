@@ -1,0 +1,48 @@
+name: .NET
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  NETCORE_VERSION: '3.1.X'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: $${{ env.NETCORE_VERSION }}
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - name: Publish
+      run: dotnet publish --output "./src/TerraformDemo.WebAPI/bin/Release/netcoreapp3.1/publish" --configuration "Release" --framework "netcoreapp3.1" /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained false
+    - name: Create directory `dist`
+      run: mkdir -p ./dist
+    - name: zip-files
+      uses: papeloto/action-zip@v1
+      with:
+        files: ./src/TerraformDemo.WebAPI/bin/Release/netcoreapp3.1/publish/
+        dest: ./dist/result.zip
+    - name: Publish Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: my-artifact
+        path: ./dist/
+    
+    
+    
