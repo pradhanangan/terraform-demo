@@ -38,6 +38,8 @@ jobs:
       with:
         files: ./src/TerraformDemo.WebAPI/bin/Release/netcoreapp3.1/publish/
         dest: ./dist/${{ env.PROJECTNAME }}-${{env.ENVIRONMENT }}-${{github.run_number}}.zip
+    - name: Copy `serverless.template` file to `dist` folder
+      run: cp "./src/TerraformDemo.WebAPI/serverless.template" "./dist/serverless-${{github.run_number}}.template"
     - name: Publish Artifacts
       uses: actions/upload-artifact@v2
       with:
