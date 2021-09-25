@@ -50,7 +50,8 @@ jobs:
 
     - name: Copy files to the test website with the AWS CLI
       run: |
-        aws s3 sync ./dist/ s3://my-s3-test-website-bucket
+        aws s3 cp ./dist/${{ env.PROJECTNAME }}-${{env.ENVIRONMENT }}-${{github.run_number}}.zip s3://int-x-std-terraform-demo
+        aws s3 cp ./dist/serverless-${{github.run_number}}.template s3://int-x-std-terraform-demo
 
     - name: Publish Artifacts
       uses: actions/upload-artifact@v2
