@@ -2,7 +2,15 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Transform": "AWS::Serverless-2016-10-31",
   "Description": "An AWS Serverless Application that uses the ASP.NET Core framework running in Amazon Lambda.",
-  "Parameters": {},
+  "Parameters": {
+    "BucketName": {
+      Type: String
+    },
+    "CodeKey": {
+      "Type": String
+    }
+        
+  },
   "Conditions": {},
   "Resources": {
     "AspNetCoreFunction": {
@@ -10,7 +18,10 @@
       "Properties": {
         "Handler": "TerraformDemo.WebAPI::TerraformDemo.WebAPI.LambdaEntryPoint::FunctionHandlerAsync",
         "Runtime": "dotnetcore3.1",
-        "CodeUri": "",
+        "CodeUri": {
+          "Bucket": {"Ref": "BucketName"},
+          "Key": {"Ref": "CodeKey"}
+        },
         "MemorySize": 256,
         "Timeout": 30,
         "Role": null,

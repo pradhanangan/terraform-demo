@@ -53,6 +53,14 @@ jobs:
         aws s3 cp ./dist/${{ env.PROJECTNAME }}-${{env.ENVIRONMENT }}-${{github.run_number}}.zip s3://int-x-std-terraform-demo
         aws s3 cp ./dist/serverless-${{github.run_number}}.template s3://int-x-std-terraform-demo
 
+    - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: int-x-std-terraform-demo-stack
+          template: ./dist/serverless-${{github.run_number}}.template"
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: "BucketName=int-x-std-terraform-demo,CodeKey=${{env.PROJECTNAME}}-${{env.ENVIRONMENT }}-${{github.run_number}}.zip"
+    
     - name: Publish Artifacts
       uses: actions/upload-artifact@v2
       with:
