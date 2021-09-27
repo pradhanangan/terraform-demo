@@ -11,6 +11,7 @@ env:
   NETCORE_VERSION: '3.1.x'
   PROJECTNAME: 'terraform-demo'
   ENVIRONMENT: 'sandpit'
+  AWS_BUCKETNAME: 'int-x-std-terraform-demo'
 
 jobs:
   build:
@@ -22,22 +23,27 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ env.NETCORE_VERSION }}
+        dotnet-version: ${{env.NETCORE_VERSION}}
+
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
+
     - name: Test
       run: dotnet test --no-build --verbosity normal
+
     - name: Publish
       run: dotnet publish --output "./src/TerraformDemo.WebAPI/bin/Release/netcoreapp3.1/publish" --configuration "Release" --framework "netcoreapp3.1" /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained false
+    
     - name: Create directory `dist`
       run: mkdir -p ./dist
+
     - name: zip-files
       uses: papeloto/action-zip@v1
       with:
         files: ./src/TerraformDemo.WebAPI/bin/Release/netcoreapp3.1/publish/
-        dest: ./dist/${{ env.PROJECTNAME }}-${{env.ENVIRONMENT }}-${{github.run_number}}.zip
+        dest: ./dist/${{ env.PROJECTNAME}}-${{env.ENVIRONMENT }}-${{github.run_number}}.zip
     - name: Copy `serverless.template` file to `dist` folder
       run: cp "./src/TerraformDemo.WebAPI/serverless.template" "./dist/serverless-${{github.run_number}}.template"
     
@@ -57,9 +63,9 @@ jobs:
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
         name: int-x-std-terraform-demo-stack
-        template: "./dist/serverless-${{github.run_number}}.template"
+        template: "s3://${{env.AWS_BUCKETNAME}}/serverless-${{github.run_number}}.template"
         no-fail-on-empty-changeset: "1"
-        parameter-overrides: "BucketName=int-x-std-terraform-demo,CodeKey=${{env.PROJECTNAME}}-${{env.ENVIRONMENT }}-${{github.run_number}}.zip"
+        parameter-overrides: "BucketName=${{env.AWS_BUCKETNAME}},CodeKey=${{env.PROJECTNAME}}-${{env.ENVIRONMENT}}-${{github.run_number}}.zip"
         capabilities: "CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND"
     
     - name: Publish Artifacts
@@ -67,6 +73,3 @@ jobs:
       with:
         name: my-artifact
         path: ./dist/
-    
-    
-    
