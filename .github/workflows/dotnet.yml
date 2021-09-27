@@ -43,7 +43,7 @@ jobs:
       uses: papeloto/action-zip@v1
       with:
         files: ./src/TerraformDemo.WebAPI/bin/Release/netcoreapp3.1/publish/
-        dest: ./dist/${{ env.PROJECTNAME}}-${{env.ENVIRONMENT }}-${{github.run_number}}.zip
+        dest: ./dist/${{env.PROJECTNAME}}-${{env.ENVIRONMENT}}-${{github.run_number}}.zip
     - name: Copy `serverless.template` file to `dist` folder
       run: cp "./src/TerraformDemo.WebAPI/serverless.template" "./dist/serverless-${{github.run_number}}.template"
     
@@ -63,7 +63,7 @@ jobs:
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
         name: int-x-std-terraform-demo-stack
-        template: "https://${{env.PROJECTNAME}}.s3.ap-southeast-2.amazonaws.com/serverless-${{github.run_number}}.template"
+        template: "https://${{env.AWS_BUCKETNAME}}.s3.ap-southeast-2.amazonaws.com/serverless-${{github.run_number}}.template"
         no-fail-on-empty-changeset: "1"
         parameter-overrides: "BucketName=${{env.AWS_BUCKETNAME}},CodeKey=${{env.PROJECTNAME}}-${{env.ENVIRONMENT}}-${{github.run_number}}.zip"
         capabilities: "CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND"
