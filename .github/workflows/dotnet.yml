@@ -2,7 +2,7 @@ name: terraform-demo CI/CD
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ main, develop ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
