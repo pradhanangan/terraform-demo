@@ -15,6 +15,10 @@ env:
   PROJECT_NAME: 'terraform-demo'
 
 jobs:
+  output-jobs-env:
+    runs-on: ubuntu-latest
+    - run: echo "GITHUB_REF ${{github.ref}}"
+
   build-deploy-sandbox:
     if: github.ref == 'refs/heads/feature/*' && github.event_name == 'push'
     runs-on: ubuntu-latest
