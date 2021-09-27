@@ -13,7 +13,7 @@ env:
 
 jobs:
   build-deploy-sandbox:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     runs-on: ubuntu-latest
     env:
       ENVIRONMENT_NAME: sandbox
