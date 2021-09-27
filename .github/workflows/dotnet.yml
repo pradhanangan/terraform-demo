@@ -30,6 +30,7 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore
+
     - name: Build
       run: dotnet build --no-restore
 
@@ -49,7 +50,7 @@ jobs:
         dest: ./dist/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
     
     - name: Copy and rename `serverless.template` file to `dist` folder
-      run: cp "./src/TerraformDemo.WebAPI/serverless.template" "./dist/serverless-${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.template"
+      run: cp "./src/TerraformDemo.WebAPI/serverless.template" "./dist/serverless-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.template"
     
      - name: Publish Artifacts
       uses: actions/upload-artifact@v2
@@ -67,13 +68,13 @@ jobs:
     - name: Copy files to the test website with the AWS CLI
       run: |
         aws s3 cp ./dist/${{ env.PROJECT_NAME }}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip s3://${{env.SANDBOX_AWS_S3_BUCKET}}
-        aws s3 cp ./dist/serverless-${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.template s3://${{env.SANDBOX_AWS_S3_BUCKET}}
+        aws s3 cp ./dist/serverless-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.template s3://${{env.SANDBOX_AWS_S3_BUCKET}}
 
     - name: Deploy to AWS CloudFormation
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
         name: ${{env.SANDBOX_AWS_STACKNAME}}
-        template: "https://${{env.SANDBOX_AWS_S3_BUCKET}}.s3.ap-southeast-2.amazonaws.com/serverless-${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.template"
+        template: "https://${{env.SANDBOX_AWS_S3_BUCKET}}.s3.ap-southeast-2.amazonaws.com/serverless-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.template"
         no-fail-on-empty-changeset: "1"
         parameter-overrides: "BucketName=${{env.SANDBOX_AWS_S3_BUCKET}},CodeKey=${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip"
         capabilities: "CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND"
