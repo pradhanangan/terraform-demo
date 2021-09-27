@@ -63,7 +63,7 @@ jobs:
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
         name: int-x-std-terraform-demo-stack
-        template: "s3://${{env.AWS_BUCKETNAME}}/serverless-${{github.run_number}}.template"
+        template: "https://${{env.PROJECTNAME}}.s3.ap-southeast-2.amazonaws.com/serverless-${{github.run_number}}.template"
         no-fail-on-empty-changeset: "1"
         parameter-overrides: "BucketName=${{env.AWS_BUCKETNAME}},CodeKey=${{env.PROJECTNAME}}-${{env.ENVIRONMENT}}-${{github.run_number}}.zip"
         capabilities: "CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND"
