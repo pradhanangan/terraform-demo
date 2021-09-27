@@ -2,7 +2,7 @@ name: terraform-demo CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ develop ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -21,6 +21,8 @@ jobs:
       SANDBOX_AWS_STACKNAME: 'int-x-std-terraform-demo-sandbox-stack'
 
     steps:
+    - run: echo "Starting Build and Deploy  - ${{env.ENVIRONMENT_NAME}}"
+
     - uses: actions/checkout@v2
 
     - name: Setup .NET
