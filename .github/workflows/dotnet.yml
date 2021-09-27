@@ -1,4 +1,4 @@
-name: .NET
+name: terraform-demo CI/CD
 
 on:
   push:
@@ -9,17 +9,20 @@ on:
 
 env:
   NETCORE_VERSION: '3.1.x'
-  PROJECTNAME: 'terraform-demo'
-  ENVIRONMENT: 'sandpit'
-  AWS_BUCKETNAME: 'int-x-std-terraform-demo'
+  PROJECT_NAME: 'terraform-demo'
 
 jobs:
-  build:
-
+  build-deploy-sandbox:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT_NAME: sandbox
+      SANDBOX_AWS_S3_BUCKET: 'int-x-std-terraform-demo-sandbox-s3-bucket'
+      SANDBOX_AWS_STACKNAME: 'int-x-std-terraform-demo-sandbox-stack'
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
@@ -43,33 +46,34 @@ jobs:
       uses: papeloto/action-zip@v1
       with:
         files: ./src/TerraformDemo.WebAPI/bin/Release/netcoreapp3.1/publish/
-        dest: ./dist/${{env.PROJECTNAME}}-${{env.ENVIRONMENT}}-${{github.run_number}}.zip
-    - name: Copy `serverless.template` file to `dist` folder
-      run: cp "./src/TerraformDemo.WebAPI/serverless.template" "./dist/serverless-${{github.run_number}}.template"
+        dest: ./dist/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
     
+    - name: Copy and rename `serverless.template` file to `dist` folder
+      run: cp "./src/TerraformDemo.WebAPI/serverless.template" "./dist/serverless-${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.template"
+    
+     - name: Publish Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}-artifacts
+        path: ./dist/
+
     - name: Configure AWS credentials from Test account
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_KEY }}
+        aws-access-key-id: ${{ secrets.SANDBOX_AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.SANDBOX_AWS_SECRET_KEY }}
         aws-region: ap-southeast-2
 
     - name: Copy files to the test website with the AWS CLI
       run: |
-        aws s3 cp ./dist/${{ env.PROJECTNAME }}-${{env.ENVIRONMENT }}-${{github.run_number}}.zip s3://int-x-std-terraform-demo
-        aws s3 cp ./dist/serverless-${{github.run_number}}.template s3://int-x-std-terraform-demo
+        aws s3 cp ./dist/${{ env.PROJECT_NAME }}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip s3://${{env.SANDBOX_AWS_S3_BUCKET}}
+        aws s3 cp ./dist/serverless-${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.template s3://${{env.SANDBOX_AWS_S3_BUCKET}}
 
     - name: Deploy to AWS CloudFormation
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
-        name: int-x-std-terraform-demo-stack
-        template: "https://${{env.AWS_BUCKETNAME}}.s3.ap-southeast-2.amazonaws.com/serverless-${{github.run_number}}.template"
+        name: ${{env.SANDBOX_AWS_STACKNAME}}
+        template: "https://${{env.SANDBOX_AWS_S3_BUCKET}}.s3.ap-southeast-2.amazonaws.com/serverless-${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.template"
         no-fail-on-empty-changeset: "1"
-        parameter-overrides: "BucketName=${{env.AWS_BUCKETNAME}},CodeKey=${{env.PROJECTNAME}}-${{env.ENVIRONMENT}}-${{github.run_number}}.zip"
+        parameter-overrides: "BucketName=${{env.SANDBOX_AWS_S3_BUCKET}},CodeKey=${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip"
         capabilities: "CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND"
-    
-    - name: Publish Artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: my-artifact
-        path: ./dist/
